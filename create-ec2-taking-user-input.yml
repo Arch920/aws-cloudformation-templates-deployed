@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This CloudFormation template creates an EC2 instance with the specified parameters
+Parameters:
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+    # Allow the user to enter the EC2 instance type
+  ImageId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    # The ID of the Amazon Machine Image (AMI) for the EC2 instance
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of an existing VPC
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: ID of an existing Subnet within the selected VPC
+  SecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: ID of an existing Security Group
+  EBSVolumeSize:
+    Type: Number
+    Description: EBS volume size in GB
+    Default: 100
+  EBSVolumeType:
+    Type: String
+    Description: EBS volume type
+    Default: gp2
+  NameTag:
+    Type: String
+    Description: Name tag for the EC2 instance
+    # Allow the user to enter the Name tag
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref ImageId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds:
+        - !Ref SecurityGroupId
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeType: !Ref EBSVolumeType
+            VolumeSize: !Ref EBSVolumeSize
+      Tags:  # Add Tags property to define the Name tag
+        - Key: Name
+          Value: !Ref NameTag  # Set the value of the Name tag to the user input
+Outputs:
+  InstanceId:
+    Value: !Ref MyEC2Instance
+    Description: The ID of the created EC2 instance
+  InstanceIP:
+    Value: !GetAtt MyEC2Instance.PublicIp
+    Description: The public IP address of the created EC2 instance
