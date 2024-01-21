@@ -1,0 +1,30 @@
+#edit this template to add bucket_name in properties, KMS key arn, tag
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for s3 bucket
+Resources:
+  S3Bucket:
+    DeletionPolicy: Retain
+    Type: 'AWS::S3::Bucket'
+    #Description: Creating Amazon S3 bucket from CloudFormation
+    Properties:
+      BucketName: bucket_name
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration: 
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: aws:kms
+            KMSMasterKeyID: customer_managed_key_arn
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+           - Key: Name
+             Value: add name here too
+Outputs:
+  S3Bucket:
+    Description: Bucket Created using this template.
+    Value: !Ref S3Bucket
